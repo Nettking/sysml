@@ -5,11 +5,15 @@ package StrawberryCultivation {
     private import DarTwin1::*;           
     private import DarTwinMetadata::*;
 
-    // Base DarTwin model
+    // =========================================================
+    // 1) BASE MODEL: StrawberryCultivation
+    // =========================================================
     #dartwin StrawberryCultivation :> DarTwin {
         
+        // The main twin system
         #twinsystem StrawberryController :> twin_system {
             
+            // The base digital twin (no soil/hydro-specific ports yet)
             #digitaltwin StrawberryDT :> digital_twin {
                 port multisensor_input;
                 port actuator_output_ventilation;
@@ -17,6 +21,7 @@ package StrawberryCultivation {
             }
         }
         
+        // Example goals (requirements)
         #goal increase_yield {
             attribute yield:Real; 
             doc /* Maximize strawberry yield under optimal conditions */
@@ -24,88 +29,104 @@ package StrawberryCultivation {
 
         #goal apply_decreased_water {
             attribute water:Real; 
-            doc /* Adjust water use based on cultivation method */
+            doc /* Adjust water usage based on cultivation method */
         }
 
+        // Allocate goals to the digital twin
         allocate increase_yield to StrawberryController.StrawberryDT;
         allocate apply_decreased_water to StrawberryController.StrawberryDT;
 
-        // Cultivation System (Physical setup for sensors and actuators)
+        // The physical cultivation system (base ports only)
         part CultivationSystem {
-            port FieldMultisensor            : Multisensor;
-            port FieldActuatorVentilation    : ActuatorVentilation;
-            port FieldHumanActuator          : HumanActuator;
+            port FieldMultisensor         : Multisensor;
+            port FieldActuatorVentilation : ActuatorVentilation;
+            port FieldHumanActuator       : HumanActuator;
         }
 
-    } // StrawberryCultivation
+    } // END StrawberryCultivation
 
-    // Evolution: Soil-based cultivation (before transformation)
+
+    // =========================================================
+    // 2) EVO_BEFORE: Soil-Based Cultivation
+    // =========================================================
     #dartwin Evo_before :> StrawberryCultivation {
         
-        #twinsystem {
-            connect CultivationSystem.FieldMultisensor to StrawberryDT.multisensor_input;
-            connect CultivationSystem.FieldSoilMoisture to StrawberryDT.soilMoisture_input;
-            connect StrawberryDT.actuator_output_ventilation to CultivationSystem.FieldActuatorVentilation;
-            connect StrawberryDT.actuator_output_irrigation to CultivationSystem.FieldActuatorIrrigation;
-            connect StrawberryDT.actuator_output_human to CultivationSystem.FieldHumanActuator;
+        // (A) SPECIALIZE the base CultivationSystem to add soil-specific ports
+        part CultivationSystem :> StrawberryCultivation.CultivationSystem {
+            port FieldSoilMoisture       : SoilMoistureSensor;
+            port FieldActuatorIrrigation : ActuatorIrrigation;
         }
 
-        #digitaltwin StrawberryDT {
+        // (B) SPECIALIZE the base StrawberryDT to add soil-based ports
+        #digitaltwin StrawberryDT :> StrawberryController.StrawberryDT {
             port soilMoisture_input;
             port actuator_output_irrigation;
         }
 
-        // Add soil-specific ports back to the physical system
-        part CultivationSystem {
-            port FieldSoilMoisture           : SoilMoistureSensor;
-            port FieldActuatorIrrigation     : ActuatorIrrigation;
-        }
-
-    }
-
-    // Evolution: Hydroponic cultivation (after transformation)
-    #dartwin Evo_afterw :> StrawberryCultivation {
-        
+        // (C) Connect everything in the "twinsystem" block
         #twinsystem {
+            // Physical sensor -> Digital Twin input
             connect CultivationSystem.FieldMultisensor to StrawberryDT.multisensor_input;
-            connect CultivationSystem.FieldNutrientSensor to StrawberryDT.nutrient_input;
-            connect CultivationSystem.FieldDissolvedOxygen to StrawberryDT.dissolvedOxygen_input;
-            connect CultivationSystem.FieldpHSensor to StrawberryDT.pH_input;
+            connect CultivationSystem.FieldSoilMoisture to StrawberryDT.soilMoisture_input;
+            
+            // Digital Twin outputs -> Physical actuators
             connect StrawberryDT.actuator_output_ventilation to CultivationSystem.FieldActuatorVentilation;
-            connect StrawberryDT.actuator_output_pump to CultivationSystem.FieldActuatorPump;
+            connect StrawberryDT.actuator_output_irrigation to CultivationSystem.FieldActuatorIrrigation;
             connect StrawberryDT.actuator_output_human to CultivationSystem.FieldHumanActuator;
         }
+    } // END Evo_before
 
-        #digitaltwin StrawberryDT {
+
+    // =========================================================
+    // 3) EVO_AFTERW: Hydroponic Cultivation
+    // =========================================================
+    #dartwin Evo_afterw :> StrawberryCultivation {
+
+        // (A) SPECIALIZE the base CultivationSystem to add hydro-specific ports
+        part CultivationSystem :> StrawberryCultivation.CultivationSystem {
+            port FieldNutrientSensor     : NutrientSensor;
+            port FieldDissolvedOxygen    : DissolvedOxygenSensor;
+            port FieldpHSensor           : pHSensor;
+            port FieldActuatorPump       : ActuatorPump;
+        }
+
+        // (B) SPECIALIZE the base StrawberryDT to add hydro-based ports
+        #digitaltwin StrawberryDT :> StrawberryController.StrawberryDT {
             port nutrient_input;
             port dissolvedOxygen_input;
             port pH_input;
             port actuator_output_pump;
         }
 
-        // Add hydroponic-specific ports to the physical system
-        part CultivationSystem {
-            port FieldNutrientSensor         : NutrientSensor;
-            port FieldDissolvedOxygen        : DissolvedOxygenSensor;
-            port FieldpHSensor               : pHSensor;
-            port FieldActuatorPump           : ActuatorPump;
+        // (C) Connect everything in the "twinsystem" block
+        #twinsystem {
+            // Physical sensor -> Digital Twin input
+            connect CultivationSystem.FieldMultisensor to StrawberryDT.multisensor_input;
+            connect CultivationSystem.FieldNutrientSensor to StrawberryDT.nutrient_input;
+            connect CultivationSystem.FieldDissolvedOxygen to StrawberryDT.dissolvedOxygen_input;
+            connect CultivationSystem.FieldpHSensor to StrawberryDT.pH_input;
+
+            // Digital Twin outputs -> Physical actuators
+            connect StrawberryDT.actuator_output_ventilation to CultivationSystem.FieldActuatorVentilation;
+            connect StrawberryDT.actuator_output_pump to CultivationSystem.FieldActuatorPump;
+            connect StrawberryDT.actuator_output_human to CultivationSystem.FieldHumanActuator;
         }
+    } // END Evo_afterw
 
-    }
 
-    //////////////////////////////////////////////////////////////////////////
-    // Port definitions for physical system
-    //////////////////////////////////////////////////////////////////////////
+    // =========================================================
+    // 4) DOMAIN PORT DEFINITIONS
+    // =========================================================
 
     port def Multisensor {
-        attribute temperature   : Real;
-        attribute humidity      : Real;
-        attribute CO2           : Real;
-        attribute noise         : Real;
+        attribute temperature : Real;
+        attribute humidity    : Real;
+        attribute CO2         : Real;
+        attribute noise       : Real;
     }
 
     port def SoilMoistureSensor {
-        attribute soilMoisture  : Real;
+        attribute soilMoisture : Real;
     }
 
     port def NutrientSensor {
@@ -121,19 +142,19 @@ package StrawberryCultivation {
     }
 
     port def ActuatorVentilation {
-        attribute ventilation   : Boolean;
+        attribute ventilation : Boolean;
     }
 
     port def ActuatorIrrigation {
-        attribute irrigation    : Boolean;
+        attribute irrigation : Boolean;
     }
 
     port def ActuatorPump {
-        attribute pump          : Boolean;
+        attribute pump : Boolean;
     }
 
     port def HumanActuator {
-        attribute human         : Boolean;
+        attribute human : Boolean;
     }
 
-}
+} // END package
