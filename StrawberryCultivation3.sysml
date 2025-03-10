@@ -42,7 +42,6 @@ package StrawberryCultivation {
             port FieldActuatorVentilation    : ActuatorVentilation;
             port FieldActuatorIrrigation     : ActuatorIrrigation;
             port FieldHumanActuator          : HumanActuator;
-            part Comms                     : Communication;
         }
 
     } // StrawberryCultivation
@@ -74,9 +73,6 @@ package StrawberryCultivation {
         attribute human         : Boolean;
     }
 
-    part def Communication {
-        port dataInput;
-        port networkOutput;
-    }
+
 
 }
