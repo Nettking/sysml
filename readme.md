@@ -17,11 +17,6 @@ The package defines:
 
 ## File Structure
 
-- **DarTwin1.sysml**  
-  Contains the core digital twin definitions.
-
-- **DarTwinMetadata.sysml**  
-  Contains semantic metadata definitions for the digital twin elements.
 
 - **StrawberryCultivation.sysml**  
   Implements the strawberry cultivation model, including both evolution variants:
