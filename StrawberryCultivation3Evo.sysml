@@ -7,9 +7,12 @@ package StrawberryCultivation {
     #dartwin StrawberryCultivation {
 
         #twinsystem StrawberryController  {
-            connect StrawberryCultivation.CultivationSystem.FieldMultisensor    to StrawberryDT.multisensor_input;
-            connect StrawberryDT.actuator_output_ventilation to StrawberryCultivation.CultivationSystem.FieldActuatorVentilation;
-            connect StrawberryDT.actuator_output_human       to StrawberryCultivation.CultivationSystem.FieldHumanActuator;
+            connect StrawberryCultivation.CultivationSystem.FieldMultisensor    
+            to StrawberryDT.multisensor_input;
+            connect StrawberryDT.actuator_output_ventilation 
+            to StrawberryCultivation.CultivationSystem.FieldActuatorVentilation;
+            connect StrawberryDT.actuator_output_human       
+            to StrawberryCultivation.CultivationSystem.FieldHumanActuator;
 
             #digitaltwin StrawberryDT {
                 port multisensor_input;
@@ -42,8 +45,10 @@ package StrawberryCultivation {
     #dartwin StrawberryCultivation_before :> StrawberryCultivation{
     	#twinsystem :>> StrawberryController  {
             // Updated connections with split sensors and renamed actuators
-            connect StrawberryCultivation_before.CultivationSystem.SoilMoistureSensor   to StrawberryDT.soilMoisture_input;
-            connect StrawberryDT.actuator_output_irrigation  to StrawberryCultivation_before.CultivationSystem.ActuatorIrrigation;
+            connect StrawberryCultivation_before.CultivationSystem.SoilMoistureSensor   
+            to StrawberryDT.soilMoisture_input;
+            connect StrawberryDT.actuator_output_irrigation  
+            to StrawberryCultivation_before.CultivationSystem.ActuatorIrrigation;
             
             #digitaltwin :>> StrawberryDT {
                 port soilMoisture_input;
