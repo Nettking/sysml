@@ -15,13 +15,19 @@ The package defines:
   - **Evo_before:** Specializes the base model for a soil-based cultivation approach by adding soil-specific ports and relationships.
   - **Evo_afterw:** Specializes the base model for a hydroponic system by introducing ports for nutrient sensing, dissolved oxygen, pH monitoring, and pump actuation.
 
-## File Structure
+## File Structure 
+- `StrawberryCultivation.sysml`  
+  The base model for the strawberry cultivation system (without evolution).
 
-
-- **StrawberryCultivation.sysml**  
-  Implements the strawberry cultivation model, including both evolution variants:
+- `StrawberryCultivationEvo.sysml`  
+  Implements evolution variants:
   - **Evo_before:** Soil-based specialization.
   - **Evo_afterw:** Hydroponic specialization.
+
+- `StrawberryCultivationEvo2.sysml`  
+  A refined evolution variant that details physical device parts and specific variant connections for both soil-based and hydroponic approaches.
+
+
 
 ## Getting Started
 
